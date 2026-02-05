@@ -31,14 +31,16 @@ ETF_FILE = os.path.join(OUTPUT_DIR, "etf_scan_results.csv")
 
 # --- Helper Functions ---
 
+import sys
+
 def refresh_data():
     """Runs the master strategy script to update all data."""
     with st.spinner('Refreshing Data (Running Strategies)...'):
         try:
             # Run master_dashboard.py which triggers all sub-strategies
-            # We use python3 from the current environment
+            # We use sys.executable to ensure we use the SAME environment that has pandas installed
             result = subprocess.run(
-                ["python3", "strategies/master_dashboard.py"],
+                [sys.executable, "strategies/master_dashboard.py"],
                 capture_output=True,
                 text=True,
                 check=True
