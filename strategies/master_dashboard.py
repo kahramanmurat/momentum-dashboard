@@ -20,6 +20,7 @@ def run_strategies():
         "supertrend_reversal.py",
         "hourly_scalper.py",
         "weekly_ema_strategy.py",
+        "unusual_volume.py",
         "etf_scanner.py"
     ]
     

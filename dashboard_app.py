@@ -28,6 +28,7 @@ TREND_REVERSAL_FILE = os.path.join(OUTPUT_DIR, "trend_reversals.csv")
 SCALP_FILE = os.path.join(OUTPUT_DIR, "hourly_scalps.csv")
 WEEKLY_EMA_FILE = os.path.join(OUTPUT_DIR, "weekly_ema_strategy.csv")
 ETF_FILE = os.path.join(OUTPUT_DIR, "etf_scan_results.csv")
+UNUSUAL_VOLUME_FILE = os.path.join(OUTPUT_DIR, "unusual_volume.csv")
 
 # --- Helper Functions ---
 
@@ -219,6 +220,15 @@ def load_etf_data():
             return pd.DataFrame()
     return pd.DataFrame()
 
+@st.cache_data(ttl=60)
+def load_unusual_volume_data():
+    if os.path.exists(UNUSUAL_VOLUME_FILE):
+        try:
+            return pd.read_csv(UNUSUAL_VOLUME_FILE)
+        except pd.errors.EmptyDataError:
+            return pd.DataFrame()
+    return pd.DataFrame()
+
 # --- Layout ---
 
 st.title("🚀 Momentum Master Dashboard")
@@ -241,7 +251,7 @@ if st.button("🔄 Refresh Data (Run Strategies)"):
     st.rerun()
 
 # --- Tab Layout ---
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Active Picks & Stars", "Sector Rotation", "Hourly Signals", "Trend Reversals", "⚡ Turbo Scalps", "📅 Weekly EMA", "📊 ETF Scan"])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(["Active Picks & Stars", "Sector Rotation", "Hourly Signals", "Trend Reversals", "⚡ Turbo Scalps", "📅 Weekly EMA", "📊 ETF Scan", "🐳 Whale & Volume"])
 
 with tab1:
     col1, col2 = st.columns(2)
@@ -617,5 +627,31 @@ with tab7:
               .map(color_rsi, subset=['RSI']),
             height=800
         )
+
+with tab8:
+    st.subheader("🐳 Unusual Volume Scanner (Institutional Footprints)")
+    st.markdown("Stocks with **high Relative Volume (RVOL)** indicating potential institutional buying (or selling).")
+    
+    df_vol = load_unusual_volume_data()
+    
+    if not df_vol.empty and "Signal" in df_vol.columns:
+        
+        def style_volume(val):
+            if "WHALE" in str(val): return 'color: #00e676; font-weight: bold; background-color: rgba(0, 230, 118, 0.1); border-left: 5px solid #00e676;'
+            if "INSTITUTIONAL" in str(val): return 'color: #4caf50; font-weight: bold;'
+            if "BREAKOUT" in str(val): return 'color: #29b6f6; font-weight: bold;'
+            if "CHURN" in str(val): return 'color: #ff9800;'
+            if "SELLING" in str(val): return 'color: #f44336;'
+            return ''
+            
+        st.dataframe(
+            df_vol.style.format({
+                'Price': '${:.2f}',
+                'RVOL': '{:.1f}x'
+            }).map(style_volume, subset=['Signal']),
+            height=600
+        )
+    else:
+        st.info("No Unusual Volume detected today (or data missing). Click Refresh.")
     else:
         st.info("No ETF Scan Data found. Please Run Refresh.")
