@@ -627,6 +627,8 @@ with tab7:
               .map(color_rsi, subset=['RSI']),
             height=800
         )
+    else:
+        st.info("No ETF Scan Data found. Please Run Refresh.")
 
 with tab8:
     st.subheader("🐳 Unusual Volume Scanner (Institutional Footprints)")
@@ -653,5 +655,3 @@ with tab8:
         )
     else:
         st.info("No Unusual Volume detected today (or data missing). Click Refresh.")
-    else:
-        st.info("No ETF Scan Data found. Please Run Refresh.")
