@@ -201,6 +201,17 @@ def load_etf_data():
 st.title("🚀 Momentum Master Dashboard")
 st.markdown(f"**Last Update:** {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}")
 
+# --- AUTO-RUN FOR CLOUD ---
+# If output files are missing (first run on cloud), auto-generate them.
+if not os.path.exists(ETF_FILE) or not os.path.exists(SCALP_FILE):
+    st.warning("⚠️ No data found (First Run). Auto-generating data... Please wait ~30 seconds.")
+    try:
+        refresh_data()
+        st.success("Data generated!")
+        st.rerun() # Refresh page to show data
+    except Exception as e:
+        st.error(f"Error generating data: {e}")
+
 if st.button("🔄 Refresh Data (Run Strategies)"):
     refresh_data()
     st.cache_data.clear() # Clear cache to reload new data
