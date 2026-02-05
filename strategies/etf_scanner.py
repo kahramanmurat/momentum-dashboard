@@ -138,12 +138,44 @@ def run_etf_scan():
     # Usually traders look at Price Action, so 'Close' is fine, but yfinance auto_adjust=True gives Adj Close in Close col.
     # Let's use auto_adjust=False to get raw price, which matches what people see on charts usually unless they use adjusted charts.
     # The existing sector_dashboard uses auto_adjust=False.
-    data = yf.download(tickers, start=start_date, progress=False, auto_adjust=False)["Close"].ffill()
+    # Use group_by='ticker' to handle structure consistently
+    try:
+        raw_data = yf.download(tickers, start=start_date, progress=False, auto_adjust=False, group_by='ticker')
+    except Exception as e:
+        print(f"Failed to download data: {e}")
+        return
+
+    # Extract 'Close' for each ticker into a single DataFrame
+    data = pd.DataFrame()
     
+    # Check if raw_data is empty
+    if raw_data.empty:
+        print("Error: yfinance returned empty data.")
+        return
+
+    # Handle Single Ticker case (unlikely with list, but possible)
+    if len(tickers) == 1:
+        t = tickers[0]
+        if 'Close' in raw_data.columns:
+            data[t] = raw_data['Close']
+    else:
+        # Multi-ticker
+        for t in tickers:
+            try:
+                # Check if ticker is in top level
+                if t in raw_data.columns:
+                    series = raw_data[t]['Close']
+                    data[t] = series
+            except Exception:
+                pass
+                
+    # FFill to handle slight mismatches
+    data = data.ffill()
+
     # Check if data download was successful (sometimes single ticker download returns Series)
-    if isinstance(data, pd.Series):
-        data = data.to_frame(name=tickers[0])
-        
+    if data.empty:
+        print("Distilled data is empty. Check internet or ticker symbols.")
+    
     results = []
     
     # Timeframe offsets (Trading Days approx)
