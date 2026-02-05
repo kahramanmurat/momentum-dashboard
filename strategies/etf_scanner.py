@@ -248,6 +248,9 @@ def run_etf_scan():
                     row[f"{label} Price Chg"] = 0.0
                     row[f"{label} % Chg"] = 0.0
 
+            # Key Levels (Support / Resistance)
+            support_level, res_level = get_support_resistance(series, current_price)
+            
             # Determine Signal
             signal = "WAIT"
             
