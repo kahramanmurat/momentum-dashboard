@@ -194,9 +194,28 @@ def run_etf_scan():
             rs = avg_gain.iloc[-1] / avg_loss.iloc[-1]
             rsi = 100 - (100 / (1 + rs)) if avg_loss.iloc[-1] != 0 else 50
             
-            # Key Levels (Support / Resistance)
-            support_level, res_level = get_support_resistance(series, current_price)
+            # Calculate metrics for each period
+            ret_1w = 0.0
+            ret_1m = 0.0
+            ret_3m = 0.0
             
+            for label, days in periods.items():
+                if len(series) > days:
+                    prev_price = series.iloc[-(days+1)] # N days ago
+                    
+                    price_change = current_price - prev_price
+                    pct_change = (price_change / prev_price) 
+                    
+                    row[f"{label} Price Chg"] = price_change
+                    row[f"{label} % Chg"] = pct_change
+                    
+                    if label == "1W": ret_1w = pct_change
+                    if label == "1M": ret_1m = pct_change
+                    if label == "3M": ret_3m = pct_change
+                else:
+                    row[f"{label} Price Chg"] = 0.0
+                    row[f"{label} % Chg"] = 0.0
+
             # Determine Signal
             signal = "WAIT"
             
@@ -213,7 +232,11 @@ def run_etf_scan():
                 # 3. BUY STRUCTURE (Test of Key Support)
                 # If Price is within 1.5% of Key Support (and > Support)
                 elif support_level > 0 and (current_price - support_level)/current_price < 0.015:
-                     signal = "BUY STRUCTURE (Support)"
+                     # FALLING KNIFE CHECK: If dropped > 7% in a week, be careful
+                     if ret_1w < -0.07:
+                         signal = "WAIT (Falling Knife)"
+                     else:
+                         signal = "BUY STRUCTURE (Support)"
                      
                 # 4. BUY ZONE (Dynamic Pullback)
                 # Either touching Lower Band, OR RSI < 55 while Up Trending
@@ -231,26 +254,6 @@ def run_etf_scan():
                 # 7. MOMENTUM UP (Acceleration)
                 else:
                     signal = "UPTREND (Hold)"
-            
-            # Calculate metrics for each period
-            ret_1m = 0.0
-            ret_3m = 0.0
-            
-            for label, days in periods.items():
-                if len(series) > days:
-                    prev_price = series.iloc[-(days+1)] # N days ago
-                    
-                    price_change = current_price - prev_price
-                    pct_change = (price_change / prev_price) 
-                    
-                    row[f"{label} Price Chg"] = price_change
-                    row[f"{label} % Chg"] = pct_change
-                    
-                    if label == "1M": ret_1m = pct_change
-                    if label == "3M": ret_3m = pct_change
-                else:
-                    row[f"{label} Price Chg"] = 0.0
-                    row[f"{label} % Chg"] = 0.0
             
             # Refine Momentum Signal using Returns
             if signal == "UPTREND (Hold)":
