@@ -150,52 +150,73 @@ def calculate_supertrend_for_chart(df, period=10, multiplier=3.0):
 @st.cache_data(ttl=60) # Cache for 1 min
 def load_portfolio_data():
     if os.path.exists(PORTFOLIO_FILE):
-        return pd.read_csv(PORTFOLIO_FILE)
+        try:
+            return pd.read_csv(PORTFOLIO_FILE)
+        except pd.errors.EmptyDataError:
+            return pd.DataFrame()
     return pd.DataFrame()
 
 @st.cache_data(ttl=60)
 def load_rising_stars_data():
     if os.path.exists(RISING_STARS_FILE):
-        return pd.read_csv(RISING_STARS_FILE)
+        try:
+            return pd.read_csv(RISING_STARS_FILE)
+        except pd.errors.EmptyDataError:
+            return pd.DataFrame()
     return pd.DataFrame()
 
 @st.cache_data(ttl=60)
 def load_sector_data():
-    # Sector data might come from sector_dashboard.py csv or we might need to run it
-    # master_dashboard.py runs sector_dashboard.py? Let's assume it does or creates similar data.
-    # The user manual task said sector_dashboard.py runs... checks master_dashboard source
     if os.path.exists(SECTOR_FILE):
-        return pd.read_csv(SECTOR_FILE)
-    return pd.DataFrame() # Fallback
+        try:
+            return pd.read_csv(SECTOR_FILE)
+        except pd.errors.EmptyDataError:
+            return pd.DataFrame()
+    return pd.DataFrame()
 
 @st.cache_data(ttl=60)
 def load_breakout_data():
     if os.path.exists(BREAKOUT_FILE):
-        return pd.read_csv(BREAKOUT_FILE)
+        try:
+            return pd.read_csv(BREAKOUT_FILE)
+        except pd.errors.EmptyDataError:
+            return pd.DataFrame()
     return pd.DataFrame()
 
 @st.cache_data(ttl=60)
 def load_trend_reversal_data():
     if os.path.exists(TREND_REVERSAL_FILE):
-        return pd.read_csv(TREND_REVERSAL_FILE)
+        try:
+            return pd.read_csv(TREND_REVERSAL_FILE)
+        except pd.errors.EmptyDataError:
+            return pd.DataFrame()
     return pd.DataFrame()
 
 @st.cache_data(ttl=60)
 def load_scalp_data():
     if os.path.exists(SCALP_FILE):
-        return pd.read_csv(SCALP_FILE)
+        try:
+            return pd.read_csv(SCALP_FILE)
+        except pd.errors.EmptyDataError:
+            return pd.DataFrame()
     return pd.DataFrame()
 
 @st.cache_data(ttl=60)
 def load_weekly_ema_data():
     if os.path.exists(WEEKLY_EMA_FILE):
-        return pd.read_csv(WEEKLY_EMA_FILE)
+        try:
+            return pd.read_csv(WEEKLY_EMA_FILE)
+        except pd.errors.EmptyDataError:
+            return pd.DataFrame()
     return pd.DataFrame()
 
 @st.cache_data(ttl=60)
 def load_etf_data():
     if os.path.exists(ETF_FILE):
-        return pd.read_csv(ETF_FILE)
+        try:
+            return pd.read_csv(ETF_FILE)
+        except pd.errors.EmptyDataError:
+            return pd.DataFrame()
     return pd.DataFrame()
 
 # --- Layout ---
