@@ -250,6 +250,28 @@ if st.button("🔄 Refresh Data (Run Strategies)"):
     st.cache_data.clear() # Clear cache to reload new data
     st.rerun()
 
+# --- Debugging ---
+with st.sidebar.expander("🛠️ Debugging & Tools"):
+    st.write("Does NVDL exist in data?")
+    
+    # Check loaded data for NVDL
+    debug_etf = load_etf_data()
+    if not debug_etf.empty and "Ticker" in debug_etf.columns:
+        if "NVDL" in debug_etf["Ticker"].values:
+            st.success("YES - NVDL found.")
+        else:
+            st.error("NO - NVDL missing.")
+    
+    if st.button("🧨 Hard Reset (Delete Cache & Data)", type="primary"):
+        st.cache_data.clear()
+        # Delete output files
+        for f in [PORTFOLIO_FILE, RISING_STARS_FILE, SECTOR_FILE, BREAKOUT_FILE, 
+                  TREND_REVERSAL_FILE, SCALP_FILE, WEEKLY_EMA_FILE, 
+                  ETF_FILE, UNUSUAL_VOLUME_FILE]:
+            if os.path.exists(f): os.remove(f)
+        st.success("Cache Cleared & Data Deleted. Reloading...")
+        st.rerun()
+
 # --- Tab Layout ---
 tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(["Active Picks & Stars", "Sector Rotation", "Hourly Signals", "Trend Reversals", "⚡ Turbo Scalps", "📅 Weekly EMA", "📊 ETF Scan", "🐳 Whale & Volume"])
 
