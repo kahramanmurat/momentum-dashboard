@@ -123,7 +123,15 @@ def run_etf_scan():
         "NUGT": "Gold Miners 2x Bull",
         "DUST": "Gold Miners 2x Bear",
         "ERX": "Energy 2x Bull",
-        "ERY": "Energy 2x Bear"
+        "ERY": "Energy 2x Bear",
+        
+        # Single Stock / Crypto Leveraged (High Beta)
+        "NVDL": "NVDA 2x Bull",
+        "TSLL": "TSLA 2x Bull",
+        "FNGU": "FANG+ 3x Bull",
+        "BITX": "Bitcoin 2x Bull",
+        "CONL": "Coinbase 2x Bull",
+        "MSTX": "MicroStrategy 1.75x Bull"
     }
     
     tickers = list(etfs.keys())
